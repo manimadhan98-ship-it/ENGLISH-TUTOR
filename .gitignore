@@ -1,0 +1,4 @@
+.env
+pending_catalog.json
+__pycache__/
+*.pyc

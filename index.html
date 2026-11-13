@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>English Tutor · Week 1</title>
+    <style>
+        /* ============================================================
+           PRODUCTION UNLOCK FLAG — SET TO false TO ENABLE GATING
+           ============================================================ */
+        :root {
+            --unlock-all: true;  /* ← CHANGE TO false FOR PRODUCTION */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, 'Segoe UI', Roboto, system-ui, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 8px;
+        }
+
+        /* ---- APP CONTAINER (mobile-first, 9:16 aspect) ---- */
+        .app {
+            width: 100%;
+            max-width: 400px;
+            height: 92vh;
+            max-height: 860px;
+            background: #f8faff;
+            border-radius: 32px;
+            box-shadow: 0 30px 60px -15px rgba(0,0,0,0.7), 0 0 0 2px rgba(255,255,255,0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* ---- HEADER ---- */
+        .header {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 20;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px; left: 0; right: 0;
+            height: 1px;
+            background: rgba(255,255,255,0.15);
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .header-left svg {
+            width: 22px; height: 22px;
+            fill: #fff;
+        }
+        .header-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.2px;
+        }
+        .header-title span {
+            background: #facc15;
+            color: #422006;
+            font-size: 0.55rem;
+            padding: 1px 6px;
+            border-radius: 20px;
+            margin-left: 4px;
+            font-weight: 800;
+        }
+        .achievement-counter {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(4px);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .achievement-counter svg { width: 14px; height: 14px; fill: #facc15; }
+
+        /* ---- SCROLL FEED ---- */
+        .scroll-feed {
+            flex: 1;
+            overflow-y: auto;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+            padding: 4px 0 40px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            background: #f8faff;
+        }
+
+        /* ---- CARD (each slide) ---- */
+        .card {
+            scroll-snap-align: start;
+            width: 94%;
+            max-width: 380px;
+            min-height: 540px;
+            background: #ffffff;
+            border-radius: 26px;
+            padding: 16px 14px 18px 14px;
+            margin: 4px 0;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.02);
+            border: 1px solid rgba(0,0,0,0.03);
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.1s;
+        }
+
+        /* Colorful top border per card */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899, #f59e0b);
+            border-radius: 26px 26px 0 0;
+            opacity: 0.85;
+        }
+
+        .card-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+            color: #64748b;
+        }
+        .card-title .tag {
+            background: #eef2ff;
+            color: #4338ca;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.5rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+        .card-title .tag.green { background: #dcfce7; color: #166534; }
+        .card-title .tag.pink { background: #fce7f3; color: #9d174d; }
+        .card-title .tag.orange { background: #ffedd5; color: #9a3412; }
+
+        .card h2 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 6px;
+            line-height: 1.25;
+            letter-spacing: -0.3px;
+        }
+        .card h2 em {
+            font-style: normal;
+            background: linear-gradient(90deg, #2563eb, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .card h3 {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 8px 0 3px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .card p {
+            font-size: 0.78rem;
+            color: #334155;
+            line-height: 1.55;
+            margin-bottom: 3px;
+        }
+        .card p .tamil {
+            color: #b45309;
+            background: #fff7ed;
+            padding: 1px 6px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.72rem;
+            display: inline-block;
+        }
+        .card .verb-box {
+            background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+            border-left: 3px solid #6366f1;
+            padding: 7px 10px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #1e1b4b;
+            margin: 6px 0;
+            letter-spacing: 0.2px;
+        }
+        .card .verb-box.accent {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-left-color: #f59e0b;
+            color: #78350f;
+        }
+        .card .verb-box.green {
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+            border-left-color: #22c55e;
+            color: #14532d;
+        }
+        .card .verb-box.pink {
+            background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+            border-left-color: #ec4899;
+            color: #831843;
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #cbd5e1, transparent);
+            margin: 8px 0;
+        }
+
+        /* ---- SUBJECT GRID ---- */
+        .subject-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 4px;
+            margin: 4px 0;
+        }
+        .subject-item {
+            background: #f1f5fe;
+            padding: 5px 8px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.72rem;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid #e2e8f0;
+        }
+        .subject-item .tamil-mini {
+            font-size: 0.65rem;
+            color: #b45309;
+            font-weight: 600;
+        }
+
+        /* ---- QUIZ STYLES ---- */
+        .quiz-option {
+            background: #f8faff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 8px 12px;
+            margin: 4px 0;
+            font-weight: 500;
+            font-size: 0.75rem;
+            color: #1e293b;
+            cursor: pointer;
+            transition: all 0.1s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .quiz-option:hover { background: #eef3ff; border-color: #93c5fd; }
+        .quiz-option.correct { background: #dcfce7; border-color: #22c55e; color: #166534; }
+        .quiz-option.wrong { background: #fee2e2; border-color: #ef4444; color: #991b1b; }
+
+        .quiz-feedback {
+            font-size: 0.72rem;
+            margin-top: 4px;
+            padding: 5px 10px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            font-weight: 600;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.72rem;
+            cursor: pointer;
+            transition: all 0.1s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-top: 4px;
+            letter-spacing: 0.2px;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn:disabled, .btn.disabled { opacity: 0.4; pointer-events: none; }
+        .btn.accent { background: linear-gradient(135deg, #f59e0b, #f97316); }
+        .btn.green { background: linear-gradient(135deg, #22c55e, #16a34a); }
+
+        /* ---- LOCK MESSAGE ---- */
+        .lock-message {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            background: linear-gradient(135deg, #fef2f2, #fee2e2);
+            border-radius: 16px;
+            color: #991b1b;
+            font-weight: 600;
+            font-size: 0.72rem;
+            gap: 4px;
+            border: 1px dashed #fca5a5;
+            margin-top: 6px;
+            text-align: center;
+        }
+        .lock-message svg { width: 28px; height: 28px; fill: #ef4444; }
+
+        /* ---- WORD DRAG ---- */
+        .word-bank {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            padding: 6px;
+            background: #f1f5fe;
+            border-radius: 12px;
+            margin: 4px 0;
+            min-height: 38px;
+            align-items: center;
+        }
+        .word-chip {
+            background: #fff;
+            border: 1.5px solid #cbd5e1;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.7rem;
+            color: #1e293b;
+            cursor: grab;
+            user-select: none;
+            transition: all 0.1s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .word-chip:active { cursor: grabbing; transform: scale(0.94); }
+        .word-chip.dragging { opacity: 0.3; }
+        .drop-zone {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+            padding: 6px;
+            min-height: 36px;
+            background: #f8faff;
+            border: 2px dashed #cbd5e1;
+            border-radius: 10px;
+            margin: 3px 0;
+            align-items: center;
+            transition: all 0.1s;
+        }
+        .drop-zone.drag-over { background: #eef3ff; border-color: #3b82f6; }
+        .drop-zone .word-chip { cursor: default; background: #eef3ff; border-color: #3b82f6; }
+
+        .sentence-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 4px 0;
+            flex-wrap: wrap;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .sentence-row .tamil-hint {
+            font-size: 0.65rem;
+            color: #b45309;
+            background: #fff7ed;
+            padding: 1px 6px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .hidden { display: none !important; }
+
+        /* ---- TOAST ---- */
+        .achievement-toast {
+            position: absolute;
+            top: 56px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            color: white;
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .achievement-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .achievement-toast svg { width: 16px; height: 16px; fill: #facc15; }
+
+        /* ---- BADGE ROW ---- */
+        .badge-row {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            padding: 8px 0;
+            flex-wrap: wrap;
+        }
+        .badge-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+        .badge-item svg { width: 28px; height: 28px; }
+        .badge-item .badge-label {
+            font-size: 0.55rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        /* ---- ILLUSTRATION BANNER ---- */
+        .illustration-banner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 6px 0 2px;
+        }
+        .illustration-banner svg {
+            width: 100%;
+            max-width: 200px;
+            height: auto;
+        }
+
+        /* ---- SMALL SCREEN ---- */
+        @media (max-width: 400px) {
+            .card { min-height: 500px; padding: 12px 10px 14px 10px; }
+            .card h2 { font-size: 1.05rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="app" id="app">
+    <!-- ===== HEADER ===== -->
+    <div class="header">
+        <div class="header-left">
+            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            <div class="header-title">English Tutor <span>W1</span></div>
+        </div>
+        <div class="achievement-counter" id="badgeDisplay">
+            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <span id="badgeText">0/5</span>
+        </div>
+    </div>
+
+    <!-- ===== SCROLL FEED ===== -->
+    <div class="scroll-feed" id="scrollFeed"></div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div class="achievement-toast" id="achievementToast">
+    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+    <span id="toastMsg">Achievement unlocked!</span>
+</div>
+
+<script>
+/* ============================================================
+   APP STATE
+   ============================================================ */
+const UNLOCK_ALL = true;  /* ← CHANGE TO false FOR PRODUCTION GATING */
+
+const state = {
+    day1Passed: false,
+    day2Passed: false,
+    day3Passed: false,
+    day4Passed: false,
+    day5Passed: false,
+    badges: [false, false, false, false, false],
+    quizAnswers: {}, // key: `${day}_${qIdx}` -> selected opt
+    dragAnswers: {}  // key: `${day}_${sentenceIdx}` -> array of words
+};
+
+/* ============================================================
+   SVG HELPERS
+   ============================================================ */
+const SVG = {
+    star: `<svg viewBox="0 0 24 24" fill="#facc15"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`,
+    lock: `<svg viewBox="0 0 24 24" fill="#94a3b8"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>`,
+    check: `<svg viewBox="0 0 24 24" fill="#22c55e"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`,
+    book: `<svg viewBox="0 0 24 24" fill="#3b82f6"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>`,
+    chat: `<svg viewBox="0 0 24 24" fill="#8b5cf6"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>`,
+    trophy: `<svg viewBox="0 0 24 24" fill="#f59e0b"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>`,
+    lightning: `<svg viewBox="0 0 24 24" fill="#f97316"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>`,
+    pencil: `<svg viewBox="0 0 24 24" fill="#ec4899"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>`,
+    globe: `<svg viewBox="0 0 24 24" fill="#06b6d4"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`,
+    puzzle: `<svg viewBox="0 0 24 24" fill="#a855f7"><path d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5C13 2.12 11.88 1 10.5 1S8 2.12 8 3.5V5H4c-1.1 0-2 .9-2 2v3.8h1.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7s2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5c1.38 0 2.5-1.12 2.5-2.5S21.88 11 20.5 11z"/></svg>`
+};
+
+/* ============================================================
+   DATA – ALL QUESTIONS FROM PDF (Week 1, Days 1-5)
+   ============================================================ */
+
+// --- DAY 1 QUESTIONS (From PDF page 1-4) ---
+const day1Questions = [
+    // Set A
+    { set: 'A', q: "I ___ speak in English.", options: ["can", "can't", "have to", "should"], correct: 0, tamil: "என்னால் ஆங்கிலம் பேச முடியும்" },
+    { set: 'A', q: "She ___ clean this. (has to)", options: ["have to", "has to", "can", "could"], correct: 1, tamil: "அவ இத சுத்தம் பண்ணனும்" },
+    { set: 'A', q: "___ you come with me? (ability)", options: ["Can", "Have", "Should", "Do"], correct: 0, tamil: "உன்னால என்னுடன் வர முடியுமா?" },
+    { set: 'A', q: "They ___ eat this. (negative ability)", options: ["can", "can't", "couldn't", "don't"], correct: 1, tamil: "அவங்களால இத சாப்பிட முடியாது" },
+    { set: 'A', q: "He ___ speak English. (has to)", options: ["have to", "has to", "can", "should"], correct: 1, tamil: "அவர் ஆங்கிலம் பேசணும்" },
+    // Set B
+    { set: 'B', q: "We ___ go there. (ability)", options: ["can", "can't", "have to", "should"], correct: 0, tamil: "நாங்க அங்க போக முடியும்" },
+    { set: 'B', q: "___ I speak in English? (ability question)", options: ["Can", "Should", "Have", "Do"], correct: 0, tamil: "என்னால் ஆங்கிலம் பேச முடியுமா?" },
+    { set: 'B', q: "It ___ fly. (negative ability)", options: ["can", "can't", "couldn't", "doesn't"], correct: 1, tamil: "அது பறக்க முடியாது" },
+    { set: 'B', q: "You ___ come with me. (ability)", options: ["can", "can't", "have to", "has to"], correct: 0, tamil: "நீ என்னுடன் வர முடியும்" },
+    { set: 'B', q: "She ___ do this alone. (negative ability)", options: ["can", "can't", "couldn't", "shouldn't"], correct: 1, tamil: "அவளால் இதை தனியா செய்ய முடியாது" },
+    // Set C
+    { set: 'C', q: "___ they eat this? (ability question)", options: ["Can", "Should", "Do", "Have"], correct: 0, tamil: "அவங்களால இத சாப்பிட முடியுமா?" },
+    { set: 'C', q: "I ___ speak in Hindi. (negative ability)", options: ["can", "can't", "couldn't", "shouldn't"], correct: 1, tamil: "என்னால் ஹிந்தி பேச முடியாது" },
+    { set: 'C', q: "He ___ speak English. (ability)", options: ["can", "can't", "couldn't", "shouldn't"], correct: 0, tamil: "அவர் ஆங்கிலம் பேச முடியும்" },
+    { set: 'C', q: "___ she clean this? (ability question)", options: ["Can", "Should", "Do", "Have"], correct: 0, tamil: "அவளால் இதை சுத்தம் செய்ய முடியுமா?" },
+    { set: 'C', q: "We ___ go there. (negative ability)", options: ["can", "can't", "couldn't", "shouldn't"], correct: 1, tamil: "நாங்க அங்க போக முடியாது" }
+];
+
+// --- DAY 2 QUESTIONS (From PDF pages 8-16) ---
+const day2Questions = [
+    // Set A
+    { set: 'A', q: "I ___ sleep without power. (past negative)", options: ["can't", "couldn't", "don't", "shouldn't"], correct: 1, tamil: "பவர் இல்லாமல் என்னால் தூங்க முடியல" },
+    { set: 'A', q: "He ___ help you. (past negative)", options: ["can't", "couldn't", "doesn't", "shouldn't"], correct: 1, tamil: "என்னால் உங்களுக்கு உதவ முடியவில்லை" },
+    { set: 'A', q: "I ___ eat well. (past ability)", options: ["can", "could", "should", "will"], correct: 1, tamil: "என்னாள் நல்லா சாப்ட முடிந்தது" },
+    { set: 'A', q: "She ___ come. (past negative)", options: ["can't", "couldn't", "doesn't", "shouldn't"], correct: 1, tamil: "என்னால் வர முடியல" },
+    { set: 'A', q: "___ I speak in English? (past ability question)", options: ["Can", "Could", "Should", "Will"], correct: 1, tamil: "என்னால் ஆங்கிலம் பேச முடிந்ததா?" },
+    // Set B
+    { set: 'B', q: "We ___ play this game. (past ability)", options: ["can", "could", "should", "will"], correct: 1, tamil: "நாம இந்த விளையாட்டை விளையாட முடிந்தது" },
+    { set: 'B', q: "They ___ eat this. (past negative)", options: ["can't", "couldn't", "don't", "shouldn't"], correct: 1, tamil: "அவங்களால் இத சாப்பிட முடியல" },
+    { set: 'B', q: "___ he go without you? (past ability question)", options: ["Can", "Could", "Should", "Will"], correct: 1, tamil: "அவனால் உன்னை இல்லாமல் போக முடிந்ததா?" },
+    { set: 'B', q: "You ___ play this game. (past ability)", options: ["can", "could", "should", "will"], correct: 1, tamil: "உன்னால் இந்த விளையாட்டை விளையாட முடிந்தது" },
+    { set: 'B', q: "She ___ do this alone. (past ability)", options: ["can", "could", "should", "will"], correct: 1, tamil: "அவளால் இதை தனியா செய்ய முடிந்தது" },
+    // Set C
+    { set: 'C', q: "I ___ come. (past negative)", options: ["can't", "couldn't", "don't", "shouldn't"], correct: 1, tamil: "என்னால் வர முடியல" },
+    { set: 'C', q: "___ we play this game? (past ability question)", options: ["Can", "Could", "Should", "Will"], correct: 1, tamil: "நாம இந்த விளையாட்டை விளையாட முடிந்ததா?" },
+    { set: 'C', q: "He ___ go without you. (past ability)", options: ["can", "could", "should", "will"], correct: 1, tamil: "அவனால் உன்னை இல்லாமல் போக முடிந்தது" },
+    { set: 'C', q: "It ___ fly. (past negative)", options: ["can't", "couldn't", "doesn't", "shouldn't"], correct: 1, tamil: "அது பறக்க முடியல" },
+    { set: 'C', q: "She ___ do this alone. (past negative)", options: ["can't", "couldn't", "doesn't", "shouldn't"], correct: 1, tamil: "அவளால் இதை தனியா செய்ய முடியல" }
+];
+
+// --- DAY 3 QUESTIONS (From PDF pages 23-28) ---
+const day3Questions = [
+    // Set A
+    { set: 'A', q: "I ___ speak in English. (advice)", options: ["should", "can", "could", "have to"], correct: 0, tamil: "நான் இங்கிலீஷ்ல பேசனும்" },
+    { set: 'A', q: "We ___ go there. (advice)", options: ["should", "can", "could", "have to"], correct: 0, tamil: "நாங்க அங்க போகனும்" },
+    { set: 'A', q: "You ___ come with me. (advice)", options: ["should", "can", "could", "have to"], correct: 0, tamil: "நீங்களும் என் கூட வாரணும்" },
+    { set: 'A', q: "They ___ eat this. (advice)", options: ["should", "can", "could", "have to"], correct: 0, tamil: "அவங்க இத சாப்டனும்" },
+    { set: 'A', q: "He ___ speak English. (advice)", options: ["should", "can", "could", "has to"], correct: 0, tamil: "அவர் இங்கிலீஷ் ல பேசனும்" },
+    // Set B
+    { set: 'B', q: "She ___ clean this. (advice)", options: ["should", "can", "could", "has to"], correct: 0, tamil: "அவ இத சுத்தம் செய்யணும்" },
+    { set: 'B', q: "It ___ fly. (advice)", options: ["should", "can", "could", "has to"], correct: 0, tamil: "இது பரக்கணும்" },
+    { set: 'B', q: "___ I speak in English? (advice question)", options: ["Should", "Can", "Could", "Do"], correct: 0, tamil: "நா இங்கிலீஷ் ல பேசனுமா" },
+    { set: 'B', q: "___ we go there? (advice question)", options: ["Should", "Can", "Could", "Do"], correct: 0, tamil: "நாம அங்க போகனுமா" },
+    { set: 'B', q: "___ you go with them? (advice question)", options: ["Should", "Can", "Could", "Do"], correct: 0, tamil: "நீ அவங்களோட போகணுமா" },
+    // Set C
+    { set: 'C', q: "What ___ I do? (advice WH-question)", options: ["should", "can", "could", "do"], correct: 0, tamil: "நான் என்ன செய்யனும்" },
+    { set: 'C', q: "Where ___ you go? (advice WH-question)", options: ["should", "can", "could", "do"], correct: 0, tamil: "நீ எங்க போகனும்" },
+    { set: 'C', q: "Why ___ he play? (advice WH-question)", options: ["should", "can", "could", "does"], correct: 0, tamil: "அவன் ஏன் விளையாடனும்" },
+    { set: 'C', q: "When ___ I come? (advice WH-question)", options: ["should", "can", "could", "do"], correct: 0, tamil: "நான் எப்போ வரனும்" },
+    { set: 'C', q: "How ___ she cook? (advice WH-question)", options: ["should", "can", "could", "does"], correct: 0, tamil: "அவ எப்படி சமக்கனும்" }
+];
+
+// --- DAY 4 QUESTIONS (From PDF pages 19-29, 39-64) ---
+const day4Questions = [
+    // Set A
+    { set: 'A', q: "I ___ in class. (present)", options: ["am", "is", "are", "was"], correct: 0, tamil: "நான் வகுப்பில் இருக்கன்" },
+    { set: 'A', q: "She ___ in class. (past)", options: ["am", "is", "was", "were"], correct: 2, tamil: "நான் வகுப்பில் இருந்தேன்" },
+    { set: 'A', q: "We ___ in class. (future)", options: ["will be", "are", "were", "is"], correct: 0, tamil: "நான் வகுப்பில் இருப்பன்" },
+    { set: 'A', q: "I ___ come. (simple present)", options: ["come", "comes", "came", "will come"], correct: 0, tamil: "நான் வறேன்" },
+    { set: 'A', q: "He ___ come. (simple present)", options: ["come", "comes", "came", "will come"], correct: 1, tamil: "அவன் வறான்" },
+    // Set B
+    { set: 'B', q: "They ___ come. (simple past)", options: ["come", "comes", "came", "will come"], correct: 2, tamil: "அவங்க வந்தாங்க" },
+    { set: 'B', q: "She ___ come. (simple future)", options: ["come", "comes", "came", "will come"], correct: 3, tamil: "அவள் வருவாள்" },
+    { set: 'B', q: "I ___ come. (simple present negative)", options: ["don't", "doesn't", "didn't", "won't"], correct: 0, tamil: "நா வரல" },
+    { set: 'B', q: "He ___ come. (simple present negative)", options: ["don't", "doesn't", "didn't", "won't"], correct: 1, tamil: "அவன் வரல" },
+    { set: 'B', q: "They ___ come. (simple past negative)", options: ["don't", "doesn't", "didn't", "won't"], correct: 2, tamil: "அவங்க வரல" },
+    // Set C
+    { set: 'C', q: "___ I come? (simple present question)", options: ["Do", "Does", "Did", "Will"], correct: 0, tamil: "நா வரேனா" },
+    { set: 'C', q: "___ he come? (simple present question)", options: ["Do", "Does", "Did", "Will"], correct: 1, tamil: "அவன் வறானா" },
+    { set: 'C', q: "___ they come? (simple past question)", options: ["Do", "Does", "Did", "Will"], correct: 2, tamil: "அவங்க வந்தாங்களா" },
+    { set: 'C', q: "___ she come? (simple future question)", options: ["Do", "Does", "Did", "Will"], correct: 3, tamil: "அவள் வருவாளா" },
+    { set: 'C', q: "I ___ come. (simple future negative)", options: ["don't", "doesn't", "didn't", "won't"], correct: 3, tamil: "நா வரமாட்டேன்" }
+];
+
+// --- DAY 5 QUESTIONS (From PDF pages 30-31) ---
+const day5Questions = [
+    // Set A
+    { set: 'A', q: "He ___ come. (high possibility)", options: ["may", "might", "must", "should"], correct: 0, tamil: "அவன் வரலாம்" },
+    { set: 'A', q: "She ___ be a doctor. (low possibility)", options: ["may", "might", "must", "should"], correct: 1, tamil: "அவள் டாக்டராக இருக்கலாம்" },
+    { set: 'A', q: "I was tired, ___ I finished the work.", options: ["though", "although", "even though", "so"], correct: 0, tamil: "எனக்கு தூக்கமா இருந்தது, ஆனாலும் வேலை முடிச்சேன்" },
+    { set: 'A', q: "___ it was raining, they went for a walk.", options: ["Though", "Although", "Even though", "Because"], correct: 1, tamil: "மழை வந்தாலும், நடைபயிற்சி செஞ்சாங்க" },
+    { set: 'A', q: "___ I was sick, I went to school.", options: ["Though", "Although", "Even though", "So"], correct: 2, tamil: "உடம்பு சரி இல்ல இருந்தாலும், பள்ளிக்கூடம் போனேன்" },
+    // Set B
+    { set: 'B', q: "They ___ come. (high possibility)", options: ["may", "might", "must", "should"], correct: 0, tamil: "அவங்க வரலாம்" },
+    { set: 'B', q: "He ___ be tired. (low possibility)", options: ["may", "might", "must", "should"], correct: 1, tamil: "அவன் சோர்வாக இருக்கலாம்" },
+    { set: 'B', q: "She smiled, ___ she was upset.", options: ["though", "although", "even though", "so"], correct: 0, tamil: "அவள் வருத்தத்தில் இருந்தா கூட, சிரிச்சாங்க" },
+    { set: 'B', q: "___ he studied hard, he didn't pass the exam.", options: ["Though", "Although", "Even though", "Because"], correct: 1, tamil: "அவன் நன்றா படிச்சாலும், தேர்வில் பாஸ் ஆகல" },
+    { set: 'B', q: "___ she had no time, she helped me.", options: ["Though", "Although", "Even though", "So"], correct: 2, tamil: "அவளுக்கு டைம் இல்ல இருந்தாலும், எனக்கு help பண்ணாங்க" },
+    // Set C
+    { set: 'C', q: "I ___ go to the market. (high possibility)", options: ["may", "might", "must", "should"], correct: 0, tamil: "நான் மார்க்கெட்டுக்கு போகலாம்" },
+    { set: 'C', q: "It ___ be dangerous. (low possibility)", options: ["may", "might", "must", "should"], correct: 1, tamil: "அது ஆபத்தாக இருக்கலாம்" },
+    { set: 'C', q: "He came to the party, ___ he wasn't invited.", options: ["though", "although", "even though", "so"], correct: 0, tamil: "அவன் அழைக்கல, என்றாலும் அவன் பார்ட்டிக்கு வந்தான்" },
+    { set: 'C', q: "___ she was late, she caught the train.", options: ["Though", "Although", "Even though", "Because"], correct: 1, tamil: "அவள் தாமதமா வந்தாலும், பஸ்ஸை பிடிச்சிட்டா" },
+    { set: 'C', q: "___ they warned him, he made the same mistake.", options: ["Though", "Although", "Even though", "So"], correct: 2, tamil: "அவங்க சொன்னாலும் கூட, அவன் அதை செய்தான்" }
+];
+
+/* ============================================================
+   DRAG & DROP EXERCISES (from PDF examples)
+   ============================================================ */
+const dragExercises = {
+    day3: [
+        { tamil: "நான் இங்கிலீஷ்ல பேசனும்", words: ["I", "should", "speak", "in", "English"], correct: "I should speak in English" },
+        { tamil: "நாங்க அங்க போகனும்", words: ["We", "should", "go", "there"], correct: "We should go there" },
+        { tamil: "நீங்களும் என் கூட வாரணும்", words: ["You", "should", "come", "with", "me"], correct: "You should come with me" },
+        { tamil: "அவங்க இத சாப்டனும்", words: ["They", "should", "eat", "this"], correct: "They should eat this" },
+        { tamil: "அவர் இங்கிலீஷ் ல பேசனும்", words: ["He", "should", "speak", "English"], correct: "He should speak English" }
+    ],
+    day4: [
+        { tamil: "நான் வருவேன்", words: ["I", "will", "come"], correct: "I will come" },
+        { tamil: "அவன் வரல", words: ["He", "didn't", "come"], correct: "He didn't come" },
+        { tamil: "நீ வரியா?", words: ["Do", "you", "come"], correct: "Do you come" },
+        { tamil: "நான் வறேன்", words: ["I", "come"], correct: "I come" },
+        { tamil: "அவள் வருவாள்", words: ["She", "will", "come"], correct: "She will come" }
+    ]
+};
+
+/* ============================================================
+   BUILDER FUNCTIONS
+   ============================================================ */
+
+function el(tag, className, html) {
+    const d = document.createElement(tag);
+    if (className) d.className = className;
+    if (html) d.innerHTML = html;
+    return d;
+}
+
+function buildCard(day, type, content) {
+    const card = el('div', 'card');
+    card.dataset.day = day;
+    card.dataset.type = type;
+    return card;
+}
+
+/* ---------- BUILD DAY 1 CARDS ---------- */
+function buildDay1Cards() {
+    const cards = [];
+
+    // Slide 1: Class
+    const c1 = buildCard(1, 'class');
+    c1.innerHTML = `
+        <div class="card-title"><span>DAY 1 · CLASS</span><span class="tag">7 Subjects</span></div>
+        <h2>7 Subjects in English</h2>
+        <div class="illustration-banner">${SVG.globe}</div>
+        <p>Like 7 wonders, 7 seas – English has <strong>7 subjects</strong>.</p>
+        <div class="subject-grid">
+            <div class="subject-item">I <span class="tamil-mini">நான்</span></div>
+            <div class="subject-item">WE <span class="tamil-mini">நாங்கள்</span></div>
+            <div class="subject-item">YOU <span class="tamil-mini">நீங்கள்</span></div>
+            <div class="subject-item">THEY <span class="tamil-mini">அவர்கள்</span></div>
+            <div class="subject-item">HE <span class="tamil-mini">அவர்</span></div>
+            <div class="subject-item">SHE <span class="tamil-mini">அவள்</span></div>
+            <div class="subject-item">IT <span class="tamil-mini">அது / இது</span></div>
+        </div>
+        <p class="tamil">ஒரு வேலையைச் செய்பவர் SUBJECT ஆக கருதப்படுகிறார்</p>
+        <div class="divider"></div>
+        <h3>📌 HAVE TO / HAS TO</h3>
+        <div class="verb-box">I/WE/YOU/THEY + HAVE TO + V1</div>
+        <div class="verb-box accent">HE/SHE/IT + HAS TO + V1</div>
+        <p>I have to speak in English. <span class="tamil">நான் இங்கிலீஷ்ல பேசனும்</span></p>
+        <p>She has to clean this. <span class="tamil">அவ இத சுத்தம் பண்ணனும்</span></p>
+    `;
+    cards.push(c1);
+
+    // Slide 2: Examples (from PDF)
+    const c2 = buildCard(1, 'examples');
+    c2.innerHTML = `
+        <div class="card-title"><span>DAY 1 · EXAMPLES</span><span class="tag green">practice</span></div>
+        <h2>Have to / Has to</h2>
+        <p>I have to go home. <span class="tamil">நான் வீட்டுக்கு போகணும்</span></p>
+        <p>You have to come on time. <span class="tamil">நீ நேரத்துக்கு வரணும்</span></p>
+        <p>We have to finish this project. <span class="tamil">நாம இந்த திட்டத்தை முடிக்கணும்</span></p>
+        <p>They have to study. <span class="tamil">அவங்க படிக்கணும்</span></p>
+        <div class="divider"></div>
+        <p>He has to go to the hospital. <span class="tamil">அவன் ஹாஸ்பிட்டலுக்கு போகணும்</span></p>
+        <p>She has to cook food. <span class="tamil">அவ சாப்பாடு சமைக்கணும்</span></p>
+        <p>It has to work now. <span class="tamil">அது இப்போ வேலை செய்யணும்</span></p>
+        <div class="divider"></div>
+        <h3>🔹 CAN / CAN'T</h3>
+        <p>I can swim fast. <span class="tamil">என்னால வேகமா நீந்த முடியும்</span></p>
+        <p>She can speak Hindi. <span class="tamil">அவளால ஹிந்தி பேச முடியும்</span></p>
+        <p>They can't help with cleaning. <span class="tamil">அவங்களால சுத்தம் செய்ய முடியாது</span></p>
+    `;
+    cards.push(c2);
+
+    // Slide 3: Quiz A
+    const c3 = buildCard(1, 'quiz');
+    c3.id = 'day1QuizA';
+    c3.innerHTML = `
+        <div class="card-title"><span>DAY 1 · QUIZ A</span><span class="tag pink">Set A</span></div>
+        <h2>Test your Day 1</h2>
+        <div id="day1QuizAContainer"></div>
+        <div id="day1QuizAFeedback" class="quiz-feedback hidden"></div>
+        <button class="btn" id="day1SubmitA" style="width:100%;">Submit Set A</button>
+    `;
+    cards.push(c3);
+
+    // Slide 4: Quiz B
+    const c4 = buildCard(1, 'quiz');
+    c4.id = 'day1QuizB';
+    c4.innerHTML = `
+        <div class="card-title"><span>DAY 1 · QUIZ B</span><span class="tag pink">Set B</span></div>
+        <h2>Test your Day 1</h2>
+        <div id="day1QuizBContainer"></div>
+        <div id="day1QuizBFeedback" class="quiz-feedback hidden"></div>
+        <button class="btn" id="day1SubmitB" style="width:100%;">Submit Set B</button>
+    `;
+    cards.push(c4);
+
+    // Slide 5: Quiz C
+    const c5 = buildCard(1, 'quiz');
+    c5.id = 'day1QuizC';
+    c5.innerHTML = `
+        <div class="card-title"><span>DAY 1 · QUIZ C</span><span class="tag pink">Set C</span></div>
+        <h2>Test your Day 1</h2>
+        <div id="day1QuizCContainer"></div>
+        <div id="day1QuizCFeedback" class="quiz-feedback hidden"></div>
+        <button class="btn" id="day1SubmitC" style="width:100%;">Submit Set C</button>
+    `;
+    cards.push(c5);
+
+    return cards;
+}
+
+/* ---------- BUILD DAY 2 CARDS ---------- */
+function buildDay2Cards() {
+    const cards = [];
+
+    // Slide 1: Class
+    const c1 = buildCard(2, 'class');
+    c1.innerHTML = `
+        <div class="card-title"><span>DAY 2 · CLASS</span><span class="tag orange">CAN'T & COULD</span></div>
+        <h2>CAN'T – முடியாது</h2>
+        <div class="illustration-banner">${SVG.lightning}</div>
+        <div class="verb-box">S + CAN'T + V1</div>
+        <p>I can't speak in English. <span class="tamil">என்னால் ஆங்கிலம் பேச முடியாது</span></p>
+        <div class="divider"></div>
+        <h3>❓ CAN'T + S + V1 (முடியாதா?)</h3>
+        <p>Can't you come with me? <span class="tamil">உன்னால என்னுடன் வர முடியாதா?</span></p>
+        <div class="divider"></div>
+        <h3>📌 COULD / COULDN'T (past ability)</h3>
+        <div class="verb-box green">S + COULD + V1 (முடிந்தது)</div>
+        <p>I could eat well. <span class="tamil">என்னாள் நல்லா சாப்ட முடிந்தது</span></p>
+        <div class="verb-box pink">S + COULDN'T + V1 (முடியவில்லை)</div>
+        <p>I couldn't sleep without power. <span class="tamil">பவர் இல்லாமல் என்னால் தூங்க முடியல</span></p>
+    `;
+    cards.push(c1);
+
+    // Slide 2: Examples
+    const c2 = buildCard(2, 'examples');
+    c2.innerHTML = `
+        <div class="card-title"><span>DAY 2 · EXAMPLES</span><span class="tag green">practice</span></div>
+        <h2>Can't & Could</h2>
+        <p><strong>Can't:</strong> I can't drive a scooter. <span class="tamil">என்னால ஸ்கூட்டர் ஓட்ட முடியாது</span></p>
+        <p><strong>Can't:</strong> She can't sing well. <span class="tamil">அவளால நல்லா பாட முடியாது</span></p>
+        <div class="divider"></div>
+        <p><strong>Could:</strong> I could read the entire book. <span class="tamil">என்னால முழு புத்தகமும் படிக்க முடிந்தது</span></p>
+        <p><strong>Couldn't:</strong> I couldn't sleep because of noise. <span class="tamil">சத்தம் காரணமா தூங்க முடியல</span></p>
+        <div class="divider"></div>
+        <p><strong>Could:</strong> We could complete the task together. <span class="tamil">நாம ஒன்றாக வேலை முடிக்க முடிந்தது</span></p>
+        <p><strong>Couldn't:</strong> He couldn't understand the topic. <span class="tamil">அவனால் தலைப்பை புரிஞ்சுக்க முடியல</span></p>
+    `;
+    cards.push(c2);
+
+    // Slide 3: Quiz A
+    const c3 = buildCard(2, 'quiz');
+    c3.innerHTML = `
+        <div class="card-title"><span>DAY 2 · QUIZ A</span><span class="tag pink">Set A</span></div>
+        <h2>Test your Day 2</h2>
+        <div id="day2QuizAContainer"></div>
+        <div id="day2QuizAFeedback" class="quiz-feedback hidden"></div>
+        <button class="btn" id="day2SubmitA" style="width:100%;">Submit Set A</button>
+    `;
+    cards.push(c3);
+
+    // Slide 4: Quiz B
+    const c4 = buildCard(2, 'quiz');
+    c4.innerHTML = `
+        <div class="card-title"><span>DAY 2 · QUIZ B</span><span class="tag pink">Set B</span></div>
+        <h2>Test your Day 2</h2>
+        <div id="day2QuizBContainer"></div>
+        <div id="day2QuizBFeedback" class="quiz-feedback hidden"></div>
+        <button class="btn" id="day2SubmitB" style="width:100%;">Submit Set B</button>
+    `;
+    cards.push(c4);
+
+    // Slide 5: Quiz C
+    const c5 = buildCard(2, 'quiz');
+    c5.innerHTML = `
+        <div class="card-title"><span>DAY 2 · QUIZ C</span><span class="tag pink">Set C</span></div>
+        <h2>Test your Day 2</h2>
+        <div id="day2QuizCContainer"></div>
+        <div id="day2QuizCFeedback" class="quiz-feedback hidden"></div>
+        <button class="btn" id="day2SubmitC" style="width:100%;">Submit Set C</button>
+    `;
+    cards.push(c5);
+
+    return cards;
+}
+
+/* ---------- BUILD DAY 3 CARDS ---------- */
+function buildDay3Cards() {
+    const cards = [];
+
+    // Slide 1: Class
+    const c1 = buildCard(3, 'class');
+    c1.innerHTML = `
+        <div class="card-title"><span>DAY 3 · CLASS</span><span class="tag">SHOULD</span></div>
+        <h2>SHOULD + V1</h2>
+        <div class="illustration-banner">${SVG.pencil}</div>
+        <div class="verb-box">S + SHOULD + V1 (வேண்டும் / வேனும்)</div>
+        <p>I should speak in English. <span class="tamil">நான் இங்கிலீஷ்ல பேசனும்</span></p>
+        <p>Should I come? <span class="tamil">நான் வரனுமா?</span></p>
+        <div class="divider"></div>
+        <h3>🔹 WH-questions with SHOULD</h3>
+        <p>What should I do? <span class="tamil">நான் என்ன செய்யனும்</span></p>
+        <p>Where should you go? <span class="tamil">நீ எங்க போகனும்</span></p>
+    `;
+    cards.push(c1);
+
+    // Slide 2: Examples
+    const c2 = buildCard(3, 'examples');
+    c2.innerHTML = `
+        <div class="card-title"><span>DAY 3 · EXAMPLES</span><span class="tag green">practice</span></div>
+        <h2>Should in Action</h2>
+        <p>You should listen carefully. <span class="tamil">நீ கவனமா கேட்கணும்</span></p>
+        <p>He should apologize to his friend. <span class="tamil">அவன் நண்பன்கிட்ட மன்னிப்பு கேக்கணும்</span></p>
+        <p>Should we visit her tomorrow? <span class="tamil">நாம நாளைக்கு அவளை பார்க்கணுமா?</span></p>
+        <div class="divider"></div>
+        <p>What should we cook for dinner? <span class="tamil">டின்னருக்கு என்ன சமைக்கணும்?</span></p>
+        <p>Where should she keep the files? <span class="tamil">அவள் பைல்ஸ் எங்க வைக்கணும்?</span></p>
+        <p>Why should I listen to you? <span class="tamil">நான் ஏன் உன்னை கேட்கணும்?</span></p>
+    `;
+    cards.push(c2);
+
+    // Slide 3: Drag & Drop
+    const c3 = buildCard(3, 'drag');
+    c3.id = 'day3DragCard';
+    c3.innerHTML = `
+        <div class="card-title"><span>DAY 3 · INTERACTIVE</span><span class="tag">drag & drop</span></div>
+        <h2>Build the Sentence</h2>
+        <p style="font-size:0.72rem; color:#64748b; margin-bottom:6px;">Drag words to complete the sentences.</p>
+        <div id="day3DragContainer"></div>
+        <button class="btn accent" id="day3CheckDrag" style="width:100%; margin-top:6px;">Check Answers</button>
+        <div id="day3DragFeedback" class="quiz-feedback hidden"></div>
+    `;
+    cards.push(c3);
+
+    // Slide 4: Quiz A
+    const c4 = buildCard(3, 'quiz');
+    c4.innerHTML = `
+        <div class="card-title"><span>DAY 3 · QUIZ A</span><span class="tag pink">Set A</span></div>
+        <h2>Test your Day 3</h2>
+        <div id="day3QuizAContainer"></div>
+        <div id="day3QuizAFeedback" class="quiz-feedback hidden"></div>
+        <button class="btn" id="day3SubmitA" style="width:100%;">Submit Set A</button>
+    `;
+    cards.push(c4);
+
+    // Slide 5: Quiz B
+    const c5 = buildCard(3, 'quiz');
+    c5.innerHTML = `
+        <div class="card-title"><span>DAY 3 · QUIZ B</span><span class="tag pink">Set B</span></div>
+        <h2>Test your Day 3</h2>
+        <div id="day3QuizBContainer"></div>
+        <div id="day3QuizBFeedback" class="quiz-feedback hidden"></div>
+        <button class="btn" id="day3SubmitB" style="width:100%;">Submit Set B</button>
+    `;
+    cards.push(c5);
+
+    // Slide 6: Quiz C
+    const c6 = buildCard(3, 'quiz');
+    c6.innerHTML = `
+        <div class="card-title"><span>DAY 3 · QUIZ C</span><span class="tag pink">Set C</span></div>
+        <h2>Test your Day 3</h2>
+        <div id="day3QuizCContainer"></div>
+        <div id="day3QuizCFeedback" class="quiz-feedback hidden"></div>
+        <button class="btn" id="day3SubmitC" style="width:100%;">Submit Set C</button>
+    `;
+    cards.push(c6);
+
+    return cards;
+}
+
+/* ---------- BUILD DAY 4 CARDS ---------- */
+function buildDay4Cards() {
+    const cards = [];
+
+    // Slide 1: Class
+    const c1 = buildCard(4, 'class');
+    c1.innerHTML = `
+        <div class="card-title"><span>DAY 4 · CLASS</span><span class="tag">BE VERBS & TENSES</span></div>
+        <h2>BE VERBS & SIMPLE TENSES</h2>
+        <div class="illustration-banner">${SVG.book}</div>
+        <div class="verb-box">AM / IS / ARE · WAS / WERE · WILL BE</div>
+        <p>I am in class. <span class="tamil">நான் வகுப்பில் இருக்கன்</span></p>
+        <p>I was in class. <span class="tamil">நான் வகுப்பில் இருந்தேன்</span></p>
+        <p>I will be in class. <span class="tamil">நான் வகுப்பில் இருப்பன்</span></p>
+        <div class="divider"></div>
+        <h3>📌 Simple Present</h3>
+        <div class="verb-box accent">I/WE/YOU/THEY + V1 · HE/SHE/IT + V1+s/es</div>
+        <p>I come. He comes. <span class="tamil">நான் வறேன் · அவன் வறான்</span></p>
+        <p><strong>Negative:</strong> I don't come · He doesn't come</p>
+        <p><strong>Question:</strong> Do I come? · Does he come?</p>
+    `;
+    cards.push(c1);
+
+    // Slide 2: Examples
+    const c2 = buildCard(4, 'examples');
+    c2.innerHTML = `
+        <div class="card-title"><span>DAY 4 · EXAMPLES</span><span class="tag green">practice</span></div>
+        <h2>Tenses in Action</h2>
+        <p><strong>Present:</strong> I eat breakfast at 8. <span class="tamil">நான் காலை 8 மணிக்கு சாப்பிடுவேன்</span></p>
+        <p><strong>Past:</strong> He played the guitar yesterday. <span class="tamil">அவன் நேற்று கிடார் வாசித்தான்</span></p>
+        <p><strong>Future:</strong> We will not attend the event. <span class="tamil">நாம நிகழ்வுக்கு வரமாட்டோம்</span></p>
+        <div class="divider"></div>
+        <p><strong>Question:</strong> Did you open the door? <span class="tamil">நீ கதவை திறந்தாயா?</span></p>
+        <p><strong>Negative:</strong> She won't come tomorrow. <span class="tamil">அவள் நாளைக்கு வரமாட்டாள்</span></p>
+        <p><strong>Present perfect:</strong> They wrote a beautiful poem. <span class="tamil">அவங்க ஒரு அழகான கவிதை எழுதினாங்க</span></p>
+    `;
+    cards.push(c2);
+
+    // Slide 3: Drag & Drop
+    const c3 = buildCard(4, 'drag');
+    c3.id = 'day4DragCard';
+    c3.innerHTML = `
+        <div class="card-title"><span>DAY 4 · INTERACTIVE</span><span class="tag">drag & drop</span></div>
+        <h2>Build the Sentence</h2>
+        <p style="font-size:0.72rem; color:#64748b; margin-bottom:6px;">Drag words to complete the sentences.</p>
+        <div id="day4DragContainer"></div>
+        <button class="btn accent" id="day4CheckDrag" style="width:100%; margin-top:6px;">Check Answers</button>
+        <div id="day4DragFeedback" class="quiz-feedback hidden"></div>
+    `;
+    cards.push(c3);
+
+    // Slide 4: Quiz A
+    const c4 = buildCard(4, 'quiz');
+    c4.innerHTML = `
+        <div class="card-title"><span>DAY 4 · QUIZ A</span><span class="tag pink">Set A</span></div>
+        <h2>Test your Day 4</h2>
+        <div id="day4QuizAContainer"></div>
+        <div id="day4QuizAFeedback" class="quiz-feedback hidden"></div>
+        <button class="btn" id="day4SubmitA" style="width:100%;">Submit Set A</button>
+    `;
+    cards.push(c4);
+
+    // Slide 5: Quiz B
+    const c5 = buildCard(4, 'quiz');
+    c5.innerHTML = `
+        <div class="card-title"><span>DAY 4 · QUIZ B</span><span class="tag pink">Set B</span></div>
+        <h2>Test your Day 4</h2>
+        <div id="day4QuizBContainer"></div>
+        <div id="day4QuizBFeedback" class="quiz-feedback hidden"></div>
+        <button class="btn" id="day4SubmitB" style="width:100%;">Submit Set B</button>
+    `;
+    cards.push(c5);
+
+    // Slide 6: Quiz C
+    const c6 = buildCard(4, 'quiz');
+    c6.innerHTML = `
+        <div class="card-title"><span>DAY 4 · QUIZ C</span><span class="tag pink">Set C</span></div>
+        <h2>Test your Day 4</h2>
+        <div id="day4QuizCContainer"></div>
+        <div id="day4QuizCFeedback" class="quiz-feedback hidden"></div>
+        <button class="btn" id="day4SubmitC" style="width:100%;">Submit Set C</button>
+    `;
+    cards.push(c6);
+
+    return cards;
+}
+
+/* ---------- BUILD DAY 5 CARDS ---------- */
+function buildDay5Cards() {
+    const cards = [];
+
+    // Slide 1: Class
+    const c1 = buildCard(5, 'class');
+    c1.innerHTML = `
+        <div class="card-title"><span>DAY 5 · CLASS</span><span class="tag orange">MAY / MIGHT & THOUGH</span></div>
+        <h2>MAY / MIGHT & THOUGH</h2>
+        <div class="illustration-banner">${SVG.puzzle}</div>
+        <div class="verb-box">S + MAY / MIGHT + V1 (ஒருவேளை ... லாம்)</div>
+        <p>He may come. <span class="tamil">அவன் வரலாம்</span></p>
+        <p>She might be a doctor. <span class="tamil">அவள் டாக்டராக இருக்கலாம்</span></p>
+        <div class="divider"></div>
+        <h3>📌 THOUGH / ALTHOUGH / EVEN THOUGH</h3>
+        <p>Though / Although / Even though – இருந்தா கூட / இருந்தாலும்</p>
+        <p>I was tired, though I finished the work. <span class="tamil">எனக்கு தூக்கமா இருந்தது, ஆனாலும் வேலை முடிச்சேன்</span></p>
+    `;
+    cards.push(c1);
+
+    // Slide 2: Examples
+    const c2 = buildCard(5, 'examples');
+    c2.innerHTML = `
+        <div class="card-title"><span>DAY 5 · EXAMPLES</span><span class="tag green">practice</span></div>
+        <h2>May, Might & Though</h2>
+        <p>I may go to the market in the evening. <span class="tamil">நான் சாயங்காலம் மார்க்கெட்டுக்கு போகலாம்</span></p>
+        <p>He might join the new company next month. <span class="tamil">அவன் அடுத்த மாசம் புது கம்பெனில சேரலாம்</span></p>
+        <div class="divider"></div>
+        <p>Although it was raining, they went for a walk. <span class="tamil">மழை வந்தாலும், நடைபயிற்சி செஞ்சாங்க</span></p>
+        <p>Even though I was sick, I went to school. <span class="tamil">உடம்பு சரி இல்ல இருந்தாலும், பள்ளிக்கூடம் போனேன்</span></p>
+        <p>She smiled, though she was upset. <span class="tamil">அவள் வருத்தத்தில் இருந்தா கூட, சிரிச்சாங்க</span></p>
+    `;
+    cards.push(c2);
+
+    // Slide 3: Quiz A
+    const c3 = buildCard(5, 'quiz');
+    c3.innerHTML = `
+        <div class="card-title"><span>DAY 5 · QUIZ A</span><span class="tag pink">Set A</span></div>
+        <h2>Test your Day 5</h2>
+        <div id="day5QuizAContainer"></div>
+        <div id="day5QuizAFeedback" class="quiz-feedback hidden"></div>
+        <button class="btn" id="day5SubmitA" style="width:100%;">Submit Set A</button>
+    `;
+    cards.push(c3);
+
+    // Slide 4: Quiz B
+    const c4 = buildCard(5, 'quiz');
+    c4.innerHTML = `
+        <div class="card-title"><span>DAY 5 · QUIZ B</span><span class="tag pink">Set B</span></div>
+        <h2>Test your Day 5</h2>
+        <div id="day5QuizBContainer"></div>
+        <div id="day5QuizBFeedback" class="quiz-feedback hidden"></div>
+        <button class="btn" id="day5SubmitB" style="width:100%;">Submit Set B</button>
+    `;
+    cards.push(c4);
+
+    // Slide 5: Quiz C
+    const c5 = buildCard(5, 'quiz');
+    c5.innerHTML = `
+        <div class="card-title"><span>DAY 5 · QUIZ C</span><span class="tag pink">Set C</span></div>
+        <h2>Test your Day 5</h2>
+        <div id="day5QuizCContainer"></div>
+        <div id="day5QuizCFeedback" class="quiz-feedback hidden"></div>
+        <button class="btn" id="day5SubmitC" style="width:100%;">Submit Set C</button>
+    `;
+    cards.push(c5);
+
+    // Slide 6: Final
+    const c6 = buildCard(5, 'final');
+    c6.innerHTML = `
+        <div class="card-title"><span>🏆 WEEK 1 COMPLETE</span></div>
+        <div style="display:flex; flex-direction:column; align-items:center; padding:16px 0;">
+            <div style="font-size:3.5rem;">🎉</div>
+            <h2 style="margin:6px 0;">Congratulations!</h2>
+            <p style="text-align:center; color:#334155; font-size:0.78rem;">You've finished Week 1 of English Tutor.</p>
+            <div class="badge-row" style="margin-top:10px;">
+                <div class="badge-item">${SVG.check}<span class="badge-label">Day 1</span></div>
+                <div class="badge-item">${SVG.check}<span class="badge-label">Day 2</span></div>
+                <div class="badge-item">${SVG.check}<span class="badge-label">Day 3</span></div>
+                <div class="badge-item">${SVG.check}<span class="badge-label">Day 4</span></div>
+                <div class="badge-item">${SVG.check}<span class="badge-label">Day 5</span></div>
+            </div>
+        </div>
+    `;
+    cards.push(c6);
+
+    return cards;
+}
+
+/* ============================================================
+   QUIZ RENDERING & LOGIC
+   ============================================================ */
+
+function renderQuiz(containerId, questions, day, set) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = '';
+    questions.forEach((q, idx) => {
+        const qDiv = document.createElement('div');
+        qDiv.style.marginBottom = '8px';
+        const qText = document.createElement('p');
+        qText.style.fontWeight = '600';
+        qText.style.marginBottom = '3px';
+        qText.style.fontSize = '0.75rem';
+        qText.textContent = `${idx + 1}. ${q.q}`;
+        qDiv.appendChild(qText);
+
+        q.options.forEach((opt, optIdx) => {
+            const optDiv = document.createElement('div');
+            optDiv.className = 'quiz-option';
+            optDiv.textContent = opt;
+            optDiv.dataset.qIdx = idx;
+            optDiv.dataset.optIdx = optIdx;
+            optDiv.style.padding = '6px 10px';
+            optDiv.style.fontSize = '0.72rem';
+
+            optDiv.addEventListener('click', () => {
+                const siblings = optDiv.parentElement.querySelectorAll('.quiz-option');
+                siblings.forEach(s => s.classList.remove('correct', 'wrong'));
+                optDiv.classList.add('correct');
+                if (!state.quizAnswers[`${day}_${set}_${idx}`]) state.quizAnswers[`${day}_${set}_${idx}`] = optIdx;
+                else state.quizAnswers[`${day}_${set}_${idx}`] = optIdx;
+            });
+
+            qDiv.appendChild(optDiv);
+        });
+
+        container.appendChild(qDiv);
+    });
+}
+
+function checkQuiz(containerId, questions, day, set, feedbackId) {
+    let correctCount = 0;
+    const container = document.getElementById(containerId);
+    const feedback = document.getElementById(feedbackId);
+    if (!container || !feedback) return;
+
+    const allOptions = container.querySelectorAll('.quiz-option');
+    allOptions.forEach(opt => opt.classList.remove('correct', 'wrong'));
+
+    questions.forEach((q, idx) => {
+        const selected = state.quizAnswers[`${day}_${set}_${idx}`];
+        const optionEls = container.querySelectorAll(`.quiz-option[data-q-idx="${idx}"]`);
+        optionEls.forEach((el, optIdx) => {
+            if (optIdx === q.correct) el.classList.add('correct');
+            else if (optIdx === selected && selected !== q.correct) el.classList.add('wrong');
+        });
+        if (selected === q.correct) correctCount++;
+    });
+
+    const pct = (correctCount / questions.length) * 100;
+    feedback.classList.remove('hidden');
+    if (pct >= 70) {
+        feedback.innerHTML = `✅ ${correctCount}/${questions.length} correct! Great job!`;
+        feedback.style.background = '#dcfce7';
+        feedback.style.color = '#166534';
+        state.badges[day-1] = true;
+        updateBadgeDisplay();
+        if (day < 5) {
+            showToast(`🏆 Day ${day} passed! Day ${day+1} unlocked.`);
+        } else {
+            showToast('🎉 WEEK 1 COMPLETE! Amazing job!');
+        }
+    } else {
+        feedback.innerHTML = `❌ ${correctCount}/${questions.length} correct. Try again!`;
+        feedback.style.background = '#fee2e2';
+        feedback.style.color = '#991b1b';
+    }
+}
+
+/* ============================================================
+   DRAG & DROP
+   ============================================================ */
+
+function buildDragExercise(containerId, data, day) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = '';
+
+    data.forEach((item, idx) => {
+        const row = document.createElement('div');
+        row.style.marginBottom = '8px';
+
+        const hint = document.createElement('div');
+        hint.className = 'sentence-row';
+        hint.innerHTML = `<span class="tamil-hint">${item.tamil}</span>`;
+        row.appendChild(hint);
+
+        const dropZone = document.createElement('div');
+        dropZone.className = 'drop-zone';
+        dropZone.dataset.target = item.correct;
+        dropZone.dataset.idx = idx;
+
+        const shuffled = [...item.words].sort(() => Math.random() - 0.5);
+        const bank = document.createElement('div');
+        bank.className = 'word-bank';
+
+        shuffled.forEach(word => {
+            const chip = document.createElement('div');
+            chip.className = 'word-chip';
+            chip.textContent = word;
+            chip.draggable = true;
+            chip.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', word);
+                chip.classList.add('dragging');
+            });
+            chip.addEventListener('dragend', () => {
+                chip.classList.remove('dragging');
+            });
+            bank.appendChild(chip);
+        });
+
+        row.appendChild(bank);
+        row.appendChild(dropZone);
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-over');
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            const word = e.dataTransfer.getData('text/plain');
+            if (word) {
+                const chip = document.createElement('div');
+                chip.className = 'word-chip';
+                chip.textContent = word;
+                dropZone.appendChild(chip);
+            }
+        });
+
+        dropZone.addEventListener('click', (e) => {
+            if (e.target.classList.contains('word-chip')) {
+                e.target.remove();
+            }
+        });
+
+        container.appendChild(row);
+    });
+}
+
+function checkDragExercise(containerId, feedbackId, data) {
+    let correctCount = 0;
+    const container = document.getElementById(containerId);
+    const feedback = document.getElementById(feedbackId);
+    if (!container || !feedback) return;
+
+    const dropZones = container.querySelectorAll('.drop-zone');
+    dropZones.forEach((zone, idx) => {
+        const target = zone.dataset.target;
+        const chips = Array.from(zone.querySelectorAll('.word-chip')).map(c => c.textContent);
+        const built = chips.join(' ');
+        if (built.toLowerCase() === target.toLowerCase()) {
+            correctCount++;
+            zone.style.borderColor = '#22c55e';
+            zone.style.background = '#dcfce7';
+        } else {
+            zone.style.borderColor = '#ef4444';
+            zone.style.borderStyle = 'solid';
+            zone.style.background = '#fee2e2';
+        }
+    });
+
+    feedback.classList.remove('hidden');
+    const total = data.length;
+    const pct = (correctCount / total) * 100;
+    if (pct >= 70) {
+        feedback.innerHTML = `✅ ${correctCount}/${total} correct! Great job!`;
+        feedback.style.background = '#dcfce7';
+        feedback.style.color = '#166534';
+    } else {
+        feedback.innerHTML = `❌ ${correctCount}/${total} correct. Try again!`;
+        feedback.style.background = '#fee2e2';
+        feedback.style.color = '#991b1b';
+    }
+}
+
+/* ============================================================
+   TOAST & BADGES
+   ============================================================ */
+
+function showToast(msg) {
+    const toast = document.getElementById('achievementToast');
+    const msgEl = document.getElementById('toastMsg');
+    msgEl.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+function updateBadgeDisplay() {
+    const badgeText = document.getElementById('badgeText');
+    const count = state.badges.filter(Boolean).length;
+    badgeText.textContent = `${count}/5`;
+}
+
+/* ============================================================
+   INITIAL RENDER
+   ============================================================ */
+
+function init() {
+    const feed = document.getElementById('scrollFeed');
+    feed.innerHTML = '';
+
+    // Build and append all day cards
+    const day1Cards = buildDay1Cards();
+    day1Cards.forEach(c => feed.appendChild(c));
+
+    const day2Cards = buildDay2Cards();
+    day2Cards.forEach(c => feed.appendChild(c));
+
+    const day3Cards = buildDay3Cards();
+    day3Cards.forEach(c => feed.appendChild(c));
+
+    const day4Cards = buildDay4Cards();
+    day4Cards.forEach(c => feed.appendChild(c));
+
+    const day5Cards = buildDay5Cards();
+    day5Cards.forEach(c => feed.appendChild(c));
+
+    // Achievement card
+    const achCard = buildCard('ach', 'achievement');
+    achCard.innerHTML = `
+        <div class="card-title"><span>🏅 ACHIEVEMENTS</span></div>
+        <div class="badge-row">
+            <div class="badge-item">${SVG.star}<span class="badge-label">Day 1</span></div>
+            <div class="badge-item">${SVG.star}<span class="badge-label">Day 2</span></div>
+            <div class="badge-item">${SVG.star}<span class="badge-label">Day 3</span></div>
+            <div class="badge-item">${SVG.star}<span class="badge-label">Day 4</span></div>
+            <div class="badge-item">${SVG.star}<span class="badge-label">Day 5</span></div>
+        </div>
+        <p style="font-size:0.68rem; color:#6b7a99; text-align:center;">Complete quizzes to earn badges</p>
+    `;
+    feed.appendChild(achCard);
+
+    // ---- RENDER QUIZZES ----
+    // Day 1
+    renderQuiz('day1QuizAContainer', day1Questions.filter(q => q.set === 'A'), 1, 'A');
+    renderQuiz('day1QuizBContainer', day1Questions.filter(q => q.set === 'B'), 1, 'B');
+    renderQuiz('day1QuizCContainer', day1Questions.filter(q => q.set === 'C'), 1, 'C');
+
+    document.getElementById('day1SubmitA').addEventListener('click', () => checkQuiz('day1QuizAContainer', day1Questions.filter(q => q.set === 'A'), 1, 'A', 'day1QuizAFeedback'));
+    document.getElementById('day1SubmitB').addEventListener('click', () => checkQuiz('day1QuizBContainer', day1Questions.filter(q => q.set === 'B'), 1, 'B', 'day1QuizBFeedback'));
+    document.getElementById('day1SubmitC').addEventListener('click', () => checkQuiz('day1QuizCContainer', day1Questions.filter(q => q.set === 'C'), 1, 'C', 'day1QuizCFeedback'));
+
+    // Day 2
+    renderQuiz('day2QuizAContainer', day2Questions.filter(q => q.set === 'A'), 2, 'A');
+    renderQuiz('day2QuizBContainer', day2Questions.filter(q => q.set === 'B'), 2, 'B');
+    renderQuiz('day2QuizCContainer', day2Questions.filter(q => q.set === 'C'), 2, 'C');
+
+    document.getElementById('day2SubmitA').addEventListener('click', () => checkQuiz('day2QuizAContainer', day2Questions.filter(q => q.set === 'A'), 2, 'A', 'day2QuizAFeedback'));
+    document.getElementById('day2SubmitB').addEventListener('click', () => checkQuiz('day2QuizBContainer', day2Questions.filter(q => q.set === 'B'), 2, 'B', 'day2QuizBFeedback'));
+    document.getElementById('day2SubmitC').addEventListener('click', () => checkQuiz('day2QuizCContainer', day2Questions.filter(q => q.set === 'C'), 2, 'C', 'day2QuizCFeedback'));
+
+    // Day 3
+    renderQuiz('day3QuizAContainer', day3Questions.filter(q => q.set === 'A'), 3, 'A');
+    renderQuiz('day3QuizBContainer', day3Questions.filter(q => q.set === 'B'), 3, 'B');
+    renderQuiz('day3QuizCContainer', day3Questions.filter(q => q.set === 'C'), 3, 'C');
+
+    document.getElementById('day3SubmitA').addEventListener('click', () => checkQuiz('day3QuizAContainer', day3Questions.filter(q => q.set === 'A'), 3, 'A', 'day3QuizAFeedback'));
+    document.getElementById('day3SubmitB').addEventListener('click', () => checkQuiz('day3QuizBContainer', day3Questions.filter(q => q.set === 'B'), 3, 'B', 'day3QuizBFeedback'));
+    document.getElementById('day3SubmitC').addEventListener('click', () => checkQuiz('day3QuizCContainer', day3Questions.filter(q => q.set === 'C'), 3, 'C', 'day3QuizCFeedback'));
+
+    // Day 4
+    renderQuiz('day4QuizAContainer', day4Questions.filter(q => q.set === 'A'), 4, 'A');
+    renderQuiz('day4QuizBContainer', day4Questions.filter(q => q.set === 'B'), 4, 'B');
+    renderQuiz('day4QuizCContainer', day4Questions.filter(q => q.set === 'C'), 4, 'C');
+
+    document.getElementById('day4SubmitA').addEventListener('click', () => checkQuiz('day4QuizAContainer', day4Questions.filter(q => q.set === 'A'), 4, 'A', 'day4QuizAFeedback'));
+    document.getElementById('day4SubmitB').addEventListener('click', () => checkQuiz('day4QuizBContainer', day4Questions.filter(q => q.set === 'B'), 4, 'B', 'day4QuizBFeedback'));
+    document.getElementById('day4SubmitC').addEventListener('click', () => checkQuiz('day4QuizCContainer', day4Questions.filter(q => q.set === 'C'), 4, 'C', 'day4QuizCFeedback'));
+
+    // Day 5
+    renderQuiz('day5QuizAContainer', day5Questions.filter(q => q.set === 'A'), 5, 'A');
+    renderQuiz('day5QuizBContainer', day5Questions.filter(q => q.set === 'B'), 5, 'B');
+    renderQuiz('day5QuizCContainer', day5Questions.filter(q => q.set === 'C'), 5, 'C');
+
+    document.getElementById('day5SubmitA').addEventListener('click', () => checkQuiz('day5QuizAContainer', day5Questions.filter(q => q.set === 'A'), 5, 'A', 'day5QuizAFeedback'));
+    document.getElementById('day5SubmitB').addEventListener('click', () => checkQuiz('day5QuizBContainer', day5Questions.filter(q => q.set === 'B'), 5, 'B', 'day5QuizBFeedback'));
+    document.getElementById('day5SubmitC').addEventListener('click', () => checkQuiz('day5QuizCContainer', day5Questions.filter(q => q.set === 'C'), 5, 'C', 'day5QuizCFeedback'));
+
+    // ---- DRAG & DROP ----
+    buildDragExercise('day3DragContainer', dragExercises.day3, 3);
+    document.getElementById('day3CheckDrag').addEventListener('click', () => {
+        checkDragExercise('day3DragContainer', 'day3DragFeedback', dragExercises.day3);
+    });
+
+    buildDragExercise('day4DragContainer', dragExercises.day4, 4);
+    document.getElementById('day4CheckDrag').addEventListener('click', () => {
+        checkDragExercise('day4DragContainer', 'day4DragFeedback', dragExercises.day4);
+    });
+
+    // Set unlock-all in testing mode
+    if (UNLOCK_ALL) {
+        // All content already visible
+    }
+}
+
+// Start
+document.addEventListener('DOMContentLoaded', init);
+
+</script>
+</body>
+</html>
