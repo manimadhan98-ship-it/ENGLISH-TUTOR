@@ -6,37 +6,28 @@
     <title>English Tutor</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: #f8faff; color: #0f172a; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        body { background: #f1f5f9; color: #0f172a; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
         
         /* Top Bar */
-        header { background: linear-gradient(135deg, #1e3a8a, #3b82f6); padding: 16px; display: flex; align-items: center; justify-content: space-between; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10; }
+        header { background: linear-gradient(135deg, #1e3a8a, #3b82f6); padding: 16px; display: flex; align-items: center; justify-content: space-between; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10; flex-shrink: 0; }
         .menu-btn { background: none; border: none; color: white; cursor: pointer; display: flex; flex-direction: column; gap: 5px; }
         .menu-btn span { width: 24px; height: 3px; background: white; border-radius: 2px; }
         header h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px; }
         
-        /* Main Content Area */
-        main { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; align-items: center; position: relative; }
-        .page { display: none; width: 100%; max-width: 500px; animation: fadeIn 0.3s ease-in-out; flex-direction: column; }
-        .page.active { display: flex; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Feed Area (Social Media Scroll) */
+        main { flex: 1; overflow-y: auto; padding: 16px; scroll-snap-type: y mandatory; display: flex; flex-direction: column; align-items: center; }
+        
+        .day-feed { display: none; width: 100%; max-width: 500px; flex-direction: column; scroll-snap-align: start; }
+        .day-feed.active { display: flex; }
 
         /* Cards */
-        .card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        .card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; flex-shrink: 0; }
         .card h2 { font-size: 1.2rem; margin-bottom: 12px; color: #1e293b; }
         .card p { font-size: 0.9rem; line-height: 1.6; color: #475569; margin-bottom: 10px; }
         .card .tamil { color: #b45309; font-size: 0.85rem; background: #fff7ed; padding: 2px 6px; border-radius: 6px; display: inline-block; margin-top: 4px; }
         .verb-box { background: #eef2ff; padding: 12px; border-radius: 8px; border-left: 4px solid #6366f1; font-weight: 600; margin: 12px 0; font-size: 0.9rem; }
         
-        /* Tabs (Week & Day) */
-        .tab-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
-        .tab-btn { background: white; border: 2px solid #e2e8f0; padding: 15px; border-radius: 12px; font-weight: 700; font-size: 1rem; color: #1e293b; cursor: pointer; text-align: center; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .tab-btn:hover, .tab-btn:active { border-color: #3b82f6; background: #eff6ff; color: #1d4ed8; }
-        .tab-btn.full { grid-column: span 2; }
-        
-        /* Back Button */
-        .back-btn { background: none; border: none; color: #3b82f6; font-weight: 600; font-size: 0.9rem; cursor: pointer; margin-bottom: 15px; display: flex; align-items: center; gap: 5px; padding: 5px 0; }
-        
-        /* Slideout Menu (Hamburger) */
+        /* Slideout Menu */
         .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 99; display: none; opacity: 0; transition: opacity 0.3s; }
         .overlay.active { display: block; opacity: 1; }
         .drawer { position: fixed; top: 0; left: -280px; bottom: 0; width: 280px; background: white; z-index: 100; transition: left 0.3s ease; box-shadow: 2px 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
@@ -44,72 +35,57 @@
         .drawer-header { background: #1e3a8a; padding: 20px; color: white; }
         .drawer-header h2 { font-size: 1.2rem; }
         .drawer-nav { padding: 10px; overflow-y: auto; }
-        .drawer-item { padding: 15px; border-bottom: 1px solid #f1f5f9; font-weight: 600; color: #334155; cursor: pointer; }
+        
+        .week-header { padding: 15px 10px 5px; font-weight: 800; color: #64748b; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+        .drawer-item { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; font-weight: 600; color: #334155; cursor: pointer; border-radius: 8px; margin-bottom: 2px;}
         .drawer-item:hover { background: #f8fafc; color: #3b82f6; }
+        .drawer-item.locked { color: #94a3b8; cursor: not-allowed; }
+        .drawer-item.locked:hover { background: transparent; color: #94a3b8; }
+        .drawer-item .lock-icon { float: right; }
         
         /* Quiz Styles */
         .quiz-option { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 15px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; font-size: 0.9rem; }
+        .quiz-option:hover { background: #eef2ff; }
         .quiz-option.correct { background: #dcfce7; border-color: #22c55e; color: #166534; }
         .quiz-option.wrong { background: #fee2e2; border-color: #ef4444; color: #991b1b; }
+        .btn { background: #3b82f6; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 10px; }
+        .btn:disabled { background: #cbd5e1; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
-    <!-- Top Navigation -->
     <header>
         <button class="menu-btn" onclick="toggleMenu()">
             <span></span><span></span><span></span>
         </button>
-        <h1>English Tutor</h1>
-        <div style="width: 24px;"></div> <!-- Spacer -->
+        <h1 id="header-title">Week 1 · Day 1</h1>
+        <div style="width: 24px;"></div>
     </header>
 
-    <!-- Slideout Drawer -->
     <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
     <div class="drawer" id="drawer">
         <div class="drawer-header">
             <h2>Lessons</h2>
         </div>
         <div class="drawer-nav">
-            <div class="drawer-item" onclick="showPage('week1')">Week 1</div>
-            <div class="drawer-item" onclick="showPage('week2')">Week 2 (Coming Soon)</div>
-            <div class="drawer-item" onclick="showPage('week3')">Week 3 (Coming Soon)</div>
-            <div class="drawer-item" onclick="showPage('week4')">Week 4 (Coming Soon)</div>
-            <div class="drawer-item" onclick="showPage('week5')">Week 5 (Coming Soon)</div>
+            <div class="week-header">Week 1</div>
+            <div class="drawer-item" id="menu-day1" onclick="loadDay(1)">Day 1</div>
+            <div class="drawer-item locked" id="menu-day2" onclick="loadDay(2)">Day 2 <span class="lock-icon">🔒</span></div>
+            <div class="drawer-item locked" id="menu-day3" onclick="loadDay(3)">Day 3 <span class="lock-icon">🔒</span></div>
+            <div class="drawer-item locked" id="menu-day4" onclick="loadDay(4)">Day 4 <span class="lock-icon">🔒</span></div>
+            <div class="drawer-item locked" id="menu-day5" onclick="loadDay(5)">Day 5 <span class="lock-icon">🔒</span></div>
+            
+            <div class="week-header" style="margin-top: 15px;">Other Weeks</div>
+            <div class="drawer-item" style="color: #94a3b8; cursor: not-allowed;">Week 2 (Coming Soon)</div>
+            <div class="drawer-item" style="color: #94a3b8; cursor: not-allowed;">Week 3 (Coming Soon)</div>
+            <div class="drawer-item" style="color: #94a3b8; cursor: not-allowed;">Week 4 (Coming Soon)</div>
+            <div class="drawer-item" style="color: #94a3b8; cursor: not-allowed;">Week 5 (Coming Soon)</div>
         </div>
     </div>
 
-    <!-- Main Content -->
-    <main>
-        <!-- ================= HOME PAGE ================= -->
-        <div id="home" class="page active">
-            <h2 style="margin-bottom: 20px;">Welcome to English Tutor</h2>
-            <p style="color: #64748b; margin-bottom: 20px;">Open the menu on the top left to start your lessons.</p>
-            <button class="tab-btn full" onclick="toggleMenu()">Open Lessons Menu</button>
-        </div>
-
-        <!-- ================= WEEK 1 (List of Days) ================= -->
-        <div id="week1" class="page">
-            <button class="back-btn" onclick="showPage('home')">← Back to Home</button>
-            <h2 style="margin-bottom: 15px;">Week 1 Lessons</h2>
-            <div class="tab-grid">
-                <button class="tab-btn" onclick="showPage('day1')">Day 1</button>
-                <button class="tab-btn" onclick="showPage('day2')">Day 2</button>
-                <button class="tab-btn" onclick="showPage('day3')">Day 3</button>
-                <button class="tab-btn" onclick="showPage('day4')">Day 4</button>
-                <button class="tab-btn full" onclick="showPage('day5')">Day 5</button>
-            </div>
-        </div>
-
-        <!-- ================= WEEK 2-5 (Placeholders) ================= -->
-        <div id="week2" class="page"><button class="back-btn" onclick="showPage('home')">← Back</button><h2>Week 2</h2><p>Content coming soon.</p></div>
-        <div id="week3" class="page"><button class="back-btn" onclick="showPage('home')">← Back</button><h2>Week 3</h2><p>Content coming soon.</p></div>
-        <div id="week4" class="page"><button class="back-btn" onclick="showPage('home')">← Back</button><h2>Week 4</h2><p>Content coming soon.</p></div>
-        <div id="week5" class="page"><button class="back-btn" onclick="showPage('home')">← Back</button><h2>Week 5</h2><p>Content coming soon.</p></div>
-
-        <!-- ================= DAY 1 CONTENT ================= -->
-        <div id="day1" class="page">
-            <button class="back-btn" onclick="showPage('week1')">← Back to Week 1</button>
+    <main id="main-feed">
+        <!-- ================= DAY 1 ================= -->
+        <div id="day1" class="day-feed active">
             <div class="card">
                 <h2>Day 1: Have to / Has to</h2>
                 <p>Like 7 wonders, English has 7 subjects (I, WE, YOU, THEY, HE, SHE, IT).</p>
@@ -123,11 +99,34 @@
                 <p>You have to come on time. <span class="tamil">நீ நேரத்துக்கு வரணும்</span></p>
                 <p>He has to go to the hospital. <span class="tamil">அவன் ஹாஸ்பிட்டலுக்கு போகணும்</span></p>
             </div>
+            <div class="card quiz-card" data-day="1">
+                <h2>Day 1 Quiz</h2>
+                <p style="font-size:0.8rem; color:#64748b; margin-bottom:15px;">Score 70% or more to unlock Day 2.</p>
+                <div class="quiz-question" data-correct="0">
+                    <p>1. I ___ speak in English.</p>
+                    <div class="quiz-option" onclick="selectOpt(this, 0, this.parentElement)">can</div>
+                    <div class="quiz-option" onclick="selectOpt(this, 1, this.parentElement)">can't</div>
+                    <div class="quiz-option" onclick="selectOpt(this, 2, this.parentElement)">have to</div>
+                </div>
+                <div class="quiz-question" data-correct="1">
+                    <p>2. She ___ clean this.</p>
+                    <div class="quiz-option" onclick="selectOpt(this, 0, this.parentElement)">have to</div>
+                    <div class="quiz-option" onclick="selectOpt(this, 1, this.parentElement)">has to</div>
+                    <div class="quiz-option" onclick="selectOpt(this, 2, this.parentElement)">can</div>
+                </div>
+                <div class="quiz-question" data-correct="0">
+                    <p>3. ___ you come with me?</p>
+                    <div class="quiz-option" onclick="selectOpt(this, 0, this.parentElement)">Can</div>
+                    <div class="quiz-option" onclick="selectOpt(this, 1, this.parentElement)">Have</div>
+                    <div class="quiz-option" onclick="selectOpt(this, 2, this.parentElement)">Do</div>
+                </div>
+                <button class="btn" onclick="submitQuiz(1)">Submit & Unlock Next</button>
+                <div id="result-day1" style="margin-top:10px; font-weight:bold; text-align:center;"></div>
+            </div>
         </div>
 
-        <!-- ================= DAY 2 CONTENT ================= -->
-        <div id="day2" class="page">
-            <button class="back-btn" onclick="showPage('week1')">← Back to Week 1</button>
+        <!-- ================= DAY 2 ================= -->
+        <div id="day2" class="day-feed">
             <div class="card">
                 <h2>Day 2: Can't & Could</h2>
                 <div class="verb-box">S + CAN'T + V1 (முடியாது)</div>
@@ -136,11 +135,34 @@
                 <p>I could eat well. <span class="tamil">என்னாள் நல்லா சாப்ட முடிந்தது</span></p>
                 <p>I couldn't sleep without power. <span class="tamil">பவர் இல்லாமல் என்னால் தூங்க முடியல</span></p>
             </div>
+            <div class="card quiz-card" data-day="2">
+                <h2>Day 2 Quiz</h2>
+                <p style="font-size:0.8rem; color:#64748b; margin-bottom:15px;">Score 70% or more to unlock Day 3.</p>
+                <div class="quiz-question" data-correct="1">
+                    <p>1. I ___ sleep without power.</p>
+                    <div class="quiz-option" onclick="selectOpt(this, 0, this.parentElement)">can't</div>
+                    <div class="quiz-option" onclick="selectOpt(this, 1, this.parentElement)">couldn't</div>
+                    <div class="quiz-option" onclick="selectOpt(this, 2, this.parentElement)">don't</div>
+                </div>
+                <div class="quiz-question" data-correct="1">
+                    <p>2. I ___ eat well.</p>
+                    <div class="quiz-option" onclick="selectOpt(this, 0, this.parentElement)">can</div>
+                    <div class="quiz-option" onclick="selectOpt(this, 1, this.parentElement)">could</div>
+                    <div class="quiz-option" onclick="selectOpt(this, 2, this.parentElement)">should</div>
+                </div>
+                <div class="quiz-question" data-correct="1">
+                    <p>3. ___ I speak in English?</p>
+                    <div class="quiz-option" onclick="selectOpt(this, 0, this.parentElement)">Can</div>
+                    <div class="quiz-option" onclick="selectOpt(this, 1, this.parentElement)">Could</div>
+                    <div class="quiz-option" onclick="selectOpt(this, 2, this.parentElement)">Should</div>
+                </div>
+                <button class="btn" onclick="submitQuiz(2)">Submit & Unlock Next</button>
+                <div id="result-day2" style="margin-top:10px; font-weight:bold; text-align:center;"></div>
+            </div>
         </div>
 
-        <!-- ================= DAY 3 CONTENT ================= -->
-        <div id="day3" class="page">
-            <button class="back-btn" onclick="showPage('week1')">← Back to Week 1</button>
+        <!-- ================= DAY 3 ================= -->
+        <div id="day3" class="day-feed">
             <div class="card">
                 <h2>Day 3: Should</h2>
                 <div class="verb-box">S + SHOULD + V1 (வேண்டும் / வேனும்)</div>
@@ -148,11 +170,34 @@
                 <p>Should I come? <span class="tamil">நான் வரனுமா?</span></p>
                 <p>What should I do? <span class="tamil">நான் என்ன செய்யனும்</span></p>
             </div>
+            <div class="card quiz-card" data-day="3">
+                <h2>Day 3 Quiz</h2>
+                <p style="font-size:0.8rem; color:#64748b; margin-bottom:15px;">Score 70% or more to unlock Day 4.</p>
+                <div class="quiz-question" data-correct="0">
+                    <p>1. I ___ speak in English.</p>
+                    <div class="quiz-option" onclick="selectOpt(this, 0, this.parentElement)">should</div>
+                    <div class="quiz-option" onclick="selectOpt(this, 1, this.parentElement)">can</div>
+                    <div class="quiz-option" onclick="selectOpt(this, 2, this.parentElement)">have to</div>
+                </div>
+                <div class="quiz-question" data-correct="0">
+                    <p>2. We ___ go there.</p>
+                    <div class="quiz-option" onclick="selectOpt(this, 0, this.parentElement)">should</div>
+                    <div class="quiz-option" onclick="selectOpt(this, 1, this.parentElement)">can</div>
+                    <div class="quiz-option" onclick="selectOpt(this, 2, this.parentElement)">could</div>
+                </div>
+                <div class="quiz-question" data-correct="0">
+                    <p>3. What ___ I do?</p>
+                    <div class="quiz-option" onclick="selectOpt(this, 0, this.parentElement)">should</div>
+                    <div class="quiz-option" onclick="selectOpt(this, 1, this.parentElement)">can</div>
+                    <div class="quiz-option" onclick="selectOpt(this, 2, this.parentElement)">do</div>
+                </div>
+                <button class="btn" onclick="submitQuiz(3)">Submit & Unlock Next</button>
+                <div id="result-day3" style="margin-top:10px; font-weight:bold; text-align:center;"></div>
+            </div>
         </div>
 
-        <!-- ================= DAY 4 CONTENT ================= -->
-        <div id="day4" class="page">
-            <button class="back-btn" onclick="showPage('week1')">← Back to Week 1</button>
+        <!-- ================= DAY 4 ================= -->
+        <div id="day4" class="day-feed">
             <div class="card">
                 <h2>Day 4: Tenses</h2>
                 <div class="verb-box">AM / IS / ARE · WAS / WERE · WILL BE</div>
@@ -162,11 +207,34 @@
                 <div class="verb-box" style="margin-top:15px;">Simple Present: I/WE/YOU/THEY + V1 · HE/SHE/IT + V1+s/es</div>
                 <p>I come. He comes. <span class="tamil">நான் வறேன் · அவன் வறான்</span></p>
             </div>
+            <div class="card quiz-card" data-day="4">
+                <h2>Day 4 Quiz</h2>
+                <p style="font-size:0.8rem; color:#64748b; margin-bottom:15px;">Score 70% or more to unlock Day 5.</p>
+                <div class="quiz-question" data-correct="0">
+                    <p>1. I ___ in class.</p>
+                    <div class="quiz-option" onclick="selectOpt(this, 0, this.parentElement)">am</div>
+                    <div class="quiz-option" onclick="selectOpt(this, 1, this.parentElement)">is</div>
+                    <div class="quiz-option" onclick="selectOpt(this, 2, this.parentElement)">are</div>
+                </div>
+                <div class="quiz-question" data-correct="2">
+                    <p>2. She ___ in class.</p>
+                    <div class="quiz-option" onclick="selectOpt(this, 0, this.parentElement)">am</div>
+                    <div class="quiz-option" onclick="selectOpt(this, 1, this.parentElement)">is</div>
+                    <div class="quiz-option" onclick="selectOpt(this, 2, this.parentElement)">was</div>
+                </div>
+                <div class="quiz-question" data-correct="0">
+                    <p>3. We ___ in class.</p>
+                    <div class="quiz-option" onclick="selectOpt(this, 0, this.parentElement)">will be</div>
+                    <div class="quiz-option" onclick="selectOpt(this, 1, this.parentElement)">are</div>
+                    <div class="quiz-option" onclick="selectOpt(this, 2, this.parentElement)">were</div>
+                </div>
+                <button class="btn" onclick="submitQuiz(4)">Submit & Unlock Next</button>
+                <div id="result-day4" style="margin-top:10px; font-weight:bold; text-align:center;"></div>
+            </div>
         </div>
 
-        <!-- ================= DAY 5 CONTENT ================= -->
-        <div id="day5" class="page">
-            <button class="back-btn" onclick="showPage('week1')">← Back to Week 1</button>
+        <!-- ================= DAY 5 ================= -->
+        <div id="day5" class="day-feed">
             <div class="card">
                 <h2>Day 5: May / Might & Though</h2>
                 <div class="verb-box">S + MAY / MIGHT + V1 (ஒருவேளை ... லாம்)</div>
@@ -175,32 +243,105 @@
                 <div class="verb-box" style="margin-top:15px;">THOUGH / ALTHOUGH / EVEN THOUGH</div>
                 <p>I was tired, though I finished the work. <span class="tamil">எனக்கு தூக்கம் இருந்தாலும் வேலை முடிச்சேன்</span></p>
             </div>
+            <div class="card quiz-card" data-day="5">
+                <h2>Day 5 Quiz</h2>
+                <p style="font-size:0.8rem; color:#64748b; margin-bottom:15px;">Score 70% or more to finish Week 1!</p>
+                <div class="quiz-question" data-correct="0">
+                    <p>1. He ___ come.</p>
+                    <div class="quiz-option" onclick="selectOpt(this, 0, this.parentElement)">may</div>
+                    <div class="quiz-option" onclick="selectOpt(this, 1, this.parentElement)">might</div>
+                    <div class="quiz-option" onclick="selectOpt(this, 2, this.parentElement)">must</div>
+                </div>
+                <div class="quiz-question" data-correct="1">
+                    <p>2. She ___ be a doctor.</p>
+                    <div class="quiz-option" onclick="selectOpt(this, 0, this.parentElement)">may</div>
+                    <div class="quiz-option" onclick="selectOpt(this, 1, this.parentElement)">might</div>
+                    <div class="quiz-option" onclick="selectOpt(this, 2, this.parentElement)">must</div>
+                </div>
+                <div class="quiz-question" data-correct="0">
+                    <p>3. I was tired, ___ I finished the work.</p>
+                    <div class="quiz-option" onclick="selectOpt(this, 0, this.parentElement)">though</div>
+                    <div class="quiz-option" onclick="selectOpt(this, 1, this.parentElement)">although</div>
+                    <div class="quiz-option" onclick="selectOpt(this, 2, this.parentElement)">so</div>
+                </div>
+                <button class="btn" onclick="submitQuiz(5)">Submit</button>
+                <div id="result-day5" style="margin-top:10px; font-weight:bold; text-align:center;"></div>
+            </div>
         </div>
 
     </main>
 
-    <!-- Navigation Script -->
     <script>
-        // Hide all pages, show the targeted page
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.remove('active');
-            });
-            document.getElementById(pageId).classList.add('active');
-            
-            // Close menu if it's open
-            if(document.getElementById('drawer').classList.contains('active')) {
-                toggleMenu();
-            }
-            
-            // Scroll to top
-            document.querySelector('main').scrollTop = 0;
-        }
+        // Load unlocked status from LocalStorage
+        let maxUnlocked = parseInt(localStorage.getItem('unlockedDay')) || 1;
 
-        // Toggle Hamburger Menu
         function toggleMenu() {
             document.getElementById('drawer').classList.toggle('active');
             document.getElementById('overlay').classList.toggle('active');
+        }
+
+        function loadDay(day) {
+            if (day > maxUnlocked) return; // Locked
+
+            // Hide all feeds, show selected
+            document.querySelectorAll('.day-feed').forEach(el => el.classList.remove('active'));
+            document.getElementById('day' + day).classList.add('active');
+            
+            // Update Header
+            document.getElementById('header-title').innerText = 'Week 1 · Day ' + day;
+
+            // Scroll feed to top
+            document.getElementById('main-feed').scrollTop = 0;
+            
+            // Close menu
+            toggleMenu();
+        }
+
+        // Quiz logic
+        function selectOpt(el, index, parent) {
+            const options = parent.querySelectorAll('.quiz-option');
+            options.forEach(opt => opt.style.borderColor = '#e2e8f0');
+            el.style.borderColor = '#3b82f6';
+            parent.setAttribute('data-selected', index);
+        }
+
+        function submitQuiz(day) {
+            const card = document.querySelector(`.quiz-card[data-day="${day}"]`);
+            const questions = card.querySelectorAll('.quiz-question');
+            let correctCount = 0;
+
+            questions.forEach(q => {
+                const selected = q.getAttribute('data-selected');
+                const correct = q.getAttribute('data-correct');
+                
+                if (selected !== null && selected === correct) {
+                    correctCount++;
+                }
+            });
+
+            const pct = (correctCount / questions.length) * 100;
+            const resultDiv = document.getElementById('result-day' + day);
+            
+            if (pct >= 70) {
+                resultDiv.style.color = '#166534';
+                resultDiv.innerText = `✅ ${correctCount}/${questions.length} correct! Unlocked next day.`;
+                
+                // Unlock logic
+                if (day === maxUnlocked && maxUnlocked < 5) {
+                    maxUnlocked = day + 1;
+                    localStorage.setItem('unlockedDay', maxUnlocked);
+                    
+                    // Update menu UI
+                    const nextBtn = document.getElementById('menu-day' + maxUnlocked);
+                    nextBtn.classList.remove('locked');
+                    nextBtn.innerHTML = `Day ${maxUnlocked}`;
+                    
+                    setTimeout(() => loadDay(maxUnlocked), 1500); // Auto-advance to next day
+                }
+            } else {
+                resultDiv.style.color = '#991b1b';
+                resultDiv.innerText = `❌ ${correctCount}/${questions.length} correct. You need 70% to pass.`;
+            }
         }
     </script>
 </body>
